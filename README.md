@@ -59,8 +59,8 @@ The **URL Shortener Application** is a full-stack web application that allows us
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/url-shortener.git
-   cd url-shortener/backend
+   git clone https://github.com/nickemma/url-shortener.git
+   cd url-shortener/server
    ```
 
 2. Install dependencies:
@@ -76,7 +76,7 @@ The **URL Shortener Application** is a full-stack web application that allows us
 
 4. Run the backend server:
    ```bash
-   go run main.go
+   go run main.go | make run
    ```
    The server will start at `http://localhost:8080`.
 
