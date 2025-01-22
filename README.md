@@ -52,6 +52,7 @@ The **URL Shortener Application** is a full-stack web application that allows us
 - Node.js and npm
 - Go (Golang)
 - PostgreSQL
+- Docker
 - Git
 
 ### Backend Setup
@@ -74,11 +75,16 @@ The **URL Shortener Application** is a full-stack web application that allows us
    - Create a PostgreSQL database.
    - Update the `dsn` string in the `initDB` function in `main.go` with your database credentials.
 
-4. Run the backend server:
+4. Run Docker:
+
+   - Docker-compose up -d
+   - The Adminer will start at `http://localhost:8080` for database visualization.
+
+5. Run the backend server:
    ```bash
    go run main.go | make run
    ```
-   The server will start at `http://localhost:8080`.
+   The server will start at `http://localhost:5000`.
 
 ### Frontend Setup
 
@@ -98,7 +104,7 @@ The **URL Shortener Application** is a full-stack web application that allows us
    ```bash
    npm run dev
    ```
-   The frontend will run at `http://localhost:3000`.
+   The frontend will run at `http://localhost:5173`.
 
 ---
 

@@ -15,9 +15,18 @@ const App: React.FC = () => {
 
   const handleShorten = async (): Promise<void> => {
     try {
-      const response = await axios.post<{ short_url: string }>("http://localhost:8080/shorten", {
+      const response = await axios.post<{ short_url: string }>(
+        "http://localhost:5000/shorten", 
+      {
         original_url: originalURL,
-      });
+      },
+     {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }
+    );
+      console.log("res", response)
       setShortURL(response.data.short_url);
       setStats(null); // Clear previous stats
     } catch (error) {
@@ -28,7 +37,7 @@ const App: React.FC = () => {
   const fetchStats = async (): Promise<void> => {
     try {
       const shortCode = shortURL.split("/").pop() || ""; // Extract the short code from the URL
-      const response = await axios.get<Stats>(`http://localhost:8080/stats/${shortCode}`);
+      const response = await axios.get<Stats>(`http://localhost:5000/stats/${shortCode}`);
       setStats(response.data);
     } catch (error) {
       console.error("Error fetching stats:", error);

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,13 @@ type URL struct {
 }
 
 func initDB() {
-	dsn := "host=localhost user=postgres password=tech1234 dbname=url_shortener port=5432 sslmode=disable"
+	dbUser := os.Getenv("POSTGRES_USER")
+	dbPassword := os.Getenv("POSTGRES_PASSWORD")
+	dbName := os.Getenv("POSTGRES_DB")
+	dbHost := "localhost"
+	dbPort := "5432"
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", dbHost, dbUser, dbPassword, dbName, dbPort)
+
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -34,7 +41,7 @@ func initDB() {
 
 // Generate a random short code
 func generateShortCode() string {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	code := make([]byte, 6)
 	for i := range code {
@@ -56,7 +63,7 @@ func createShortURL(c *gin.Context) {
 	url := URL{ShortCode: shortCode, OriginalURL: request.OriginalURL}
 	db.Create(&url)
 
-	c.JSON(http.StatusOK, gin.H{"short_url": "http://localhost:8080/" + shortCode})
+	c.JSON(http.StatusOK, gin.H{"short_url": "http://localhost:5000/" + shortCode})
 }
 
 func redirectToOriginal(c *gin.Context) {
@@ -90,9 +97,26 @@ func getStats(c *gin.Context) {
 func main() {
 	initDB()
 	router := gin.Default()
+
+	// CORS middleware
+	router.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")                                // Allow your frontend's origin
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS") // Allow HTTP methods
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")     // Allow necessary headers
+		c.Header("Access-Control-Allow-Credentials", "true")                        // Allow credentials if needed
+
+		// Handle preflight OPTIONS request
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	})
+
 	router.POST("/shorten", createShortURL)
 	router.GET("/:shortCode", redirectToOriginal)
 	router.GET("/stats/:shortCode", getStats)
 
-	router.Run(":8080")
+	router.Run(":5000")
 }
